@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  icarus:
+    container_name: icarus-dedicated
+    image: czechwal000/steamcmd-wine-xvfb:latest  # Reference to your cloned image
+    hostname: icarus-dedicated
+    restart: unless-stopped
+    environment:
+      - SERVERNAME=Icarus Server
+      - JOIN_PASSWORD=yourpassword
+      - ADMIN_PASSWORD=adminpassword
+      - BRANCH=public
+      - PORT=17777
+      - QUERYPORT=27016
+      - STEAM_ASYNC_TIMEOUT=60
+    volumes:
+      - /mnt/user/appdata/icarus:/home/steam/icarus
+      - /mnt/user/appdata/steamcmd:/home/steam/steamcmd  # SteamCMD directory for updates
+      - /mnt/user/appdata/icarus/wine:/home/steam/.wine/drive_c/icarus  # Wine environment for Icarus server
+    ports:
+      - 17777:17777/udp  # Game server port
+      - 27016:27016/udp  # Query port
+    command: /home/steam/launch_server.sh  # Use the script as the command to run
+    networks:
+      - icarus-net
+
+networks:
+  icarus-net:
+    driver: bridge
