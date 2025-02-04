@@ -1,27 +1,31 @@
 services:
   icarus:
     container_name: icarus-dedicated
-    image: czechwal000/steamcmd-wine-xvfb:latest  # Reference to your cloned image
-    hostname: icarus-dedicated
+    image: icarus-server:latest  # Use the locally built image name
+    build:
+      context: .  # The Dockerfile is in the same directory
     restart: unless-stopped
+    ports:
+      - "17777:17777/udp"  # Default Icarus server port
+      - "27016:27016/udp"  # Default Icarus query port
+    volumes:
+      - /mnt/user/appdata/icarus/:/Icarus/  # Icarus game data
+      - /mnt/user/appdata/icarus/steam/:/home/steam/icarus/  # Steam data
+      - /mnt/user/appdata/icarus/wine/:/home/steam/.wine/drive_c/icarus/  # Wine data
+      - /mnt/user/appdata/steamcmd:/home/steam/steamcmd/  # SteamCMD data
     environment:
       - SERVERNAME=Icarus Server
-      - JOIN_PASSWORD=yourpassword
-      - ADMIN_PASSWORD=adminpassword
-      - BRANCH=public
-      - PORT=17777
+      - JOIN_PASSWORD=your_password_here
+      - ADMIN_PASSWORD=your_admin_password_here
       - QUERYPORT=27016
       - STEAM_ASYNC_TIMEOUT=60
-    volumes:
-      - /mnt/user/appdata/icarus:/home/steam/icarus
-      - /mnt/user/appdata/steamcmd:/home/steam/steamcmd  # SteamCMD directory for updates
-      - /mnt/user/appdata/icarus/wine:/home/steam/.wine/drive_c/icarus  # Wine environment for Icarus server
-    ports:
-      - 17777:17777/udp  # Game server port
-      - 27016:27016/udp  # Query port
-    command: /home/steam/launch_server.sh  # Use the script as the command to run
+      - STEAM_USERID=1000
+      - STEAM_GROUPID=1000
+      - BRANCH=public  # Make sure this is the correct branch
+      - PORT=17777  # The port for the Icarus server
+    command: /home/steam/launch_server.sh  # Make sure the script exists and is executable
     networks:
-      - icarus-net
+      - icarus-net  # Custom network for container communication
 
 networks:
   icarus-net:
